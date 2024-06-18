@@ -1,4 +1,4 @@
-﻿#include <windows.h>
+#include <windows.h>
 #include <algorithm>
 #include <exedit.hpp>
 
@@ -51,12 +51,6 @@ struct AlphaControl {
 	short threshold_min;
 	short threshold_max;
 };
-
-
-int get_exedit92_dll_hinst(ExEdit::Filter* efp) {
-    constexpr int exedit92_exfunc_address = 0xa41e0;
-    return (int)efp->exfunc - exedit92_exfunc_address;
-}
 
 
 void add(ExEdit::PixelYCA* dst, int v) {
@@ -142,7 +136,7 @@ BOOL func_proc(ExEdit::Filter* efp, ExEdit::FilterProcInfo* efpip) {
 	}
     if (flag) {
         // rgb2yc(short* y,short* cb,short* cr,int color);
-        reinterpret_cast<void(__cdecl*)(short*, short*, short*, int)>(get_exedit92_dll_hinst(efp) + 0x6fed0)(&ac.y, &ac.cb, &ac.cr, exdata->color & 0xffffff);
+        reinterpret_cast<void(__cdecl*)(short*, short*, short*, int)>((int)efp->exedit_fp->dll_hinst + 0x6fed0)(&ac.y, &ac.cb, &ac.cr, exdata->color & 0xffffff);
         efp->aviutl_exfunc->exec_multi_thread_func((AviUtl::MultiThreadFunc)(mt_color), &ac, efpip);
     } else {
         efp->aviutl_exfunc->exec_multi_thread_func((AviUtl::MultiThreadFunc)(mt), &ac, efpip);
@@ -173,7 +167,7 @@ BOOL func_WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, AviUtl:
                 efp->exfunc->set_undo(efp->processing, 0);
                 exdata->mode = mode;
                 // update_any_exdata(ExEdit::ObjectFilterIndex processing, const char* exdata_use_name)
-                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>(get_exedit92_dll_hinst(efp) + 0x4a7e0)(efp->processing, exdata_use[0].name);
+                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>((int)efp->exedit_fp->dll_hinst + 0x4a7e0)(efp->processing, exdata_use[0].name);
                 update_extendedfilter_wnd(efp);
             }
             return TRUE;
@@ -181,8 +175,8 @@ BOOL func_WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, AviUtl:
             efp->exfunc->set_undo(efp->processing, 0);
             if (efp->exfunc->x6c(efp, &exdata->color, 0x102)) { // color_dialog
                 // update_any_exdata(ExEdit::ObjectFilterIndex processing, const char* exdata_use_name)
-                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>(get_exedit92_dll_hinst(efp) + 0x4a7e0)(efp->processing, exdata_use[1].name);
-                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>(get_exedit92_dll_hinst(efp) + 0x4a7e0)(efp->processing, exdata_use[2].name);
+                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>((int)efp->exedit_fp->dll_hinst + 0x4a7e0)(efp->processing, exdata_use[1].name);
+                reinterpret_cast<void(__cdecl*)(ExEdit::ObjectFilterIndex, const char*)>((int)efp->exedit_fp->dll_hinst + 0x4a7e0)(efp->processing, exdata_use[2].name);
                 update_extendedfilter_wnd(efp);
             }
             return TRUE;
